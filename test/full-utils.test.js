@@ -61,4 +61,18 @@ describe('test/full-utils.test.js', () => {
     assert(ctx.helper.uuid4().length === 36);
   });
 
+  it('should test helper time', () => {
+    const ctx = app.mockContext();
+    const now = ctx.helper.now();
+    const time = ctx.helper.time(0, 0, 1, 0);
+    assert(time === (now + 60));
+
+    const localTime = ctx.helper.getLocalTime(1536911609);
+    assert(localTime === '2018-9-14 15:53:29');
+
+    const todayZero = ctx.helper.todayZero();
+    const tomorrowZero = ctx.helper.tomorrowZero();
+    assert((todayZero + 24 * 3600) === tomorrowZero);
+    assert(parseInt(todayZero % 100) === 0);
+  });
 });
