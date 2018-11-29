@@ -24,6 +24,15 @@
 Description here.
 -->
 
+## Chinese 中文
+
+- [点这里](./README.zh_CN.md)
+
+## Important
+
+> crypto-js@3.1.9-1
+> uuid@3.3.2
+
 ## Install
 
 ```bash
@@ -45,6 +54,10 @@ exports.fullUtils = {
 ```js
 // {app_root}/config/config.default.js
 exports.fullUtils = {
+  /**
+   * ctx.success() => { code: 'success', data: null }
+   */
+  success: 'success',
 };
 ```
 
@@ -52,11 +65,48 @@ see [config/config.default.js](config/config.default.js) for more detail.
 
 ## Example
 
-<!-- example here -->
+```js
+'use strict';
 
-## Questions & Suggestions
+module.exports = app => {
+  class UserController extends app.Controller {
+    /**
+     * get: /login?name=xxx&password=123456
+     * response: { code: success, data: { userId }}, status: 200
+     */
+    async login() {
+      const result = this.service.user.verify();
+      ctx.resp(result);
+    }
+  }
+  return UserController;
+};
 
-Please open an issue [here](https://github.com/eggjs/egg/issues).
+module.exports = app => {
+  class UserService extends app.Service {
+    async verify() {
+      const { ctx } = this;
+
+      const payload = ctx.request.body || {};
+
+      // get user from db or cache by payload.name
+      const user = {
+        userId: '10001',
+        password: '07e38ba001d5df0dd4488cdf0d5ab8ea',
+        salt: 'P7yRKQymchIZ5ZpP',
+      };
+
+      // check password
+      if (user.password !== ctx.helper.md5(payload.password + salt)) {
+        return ctx.failed('password error');
+      }
+
+      return ctx.success({ userId: user.userId });
+    }
+  }
+  return UserService;
+};
+```
 
 ## License
 

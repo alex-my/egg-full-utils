@@ -11,6 +11,7 @@
     "egg-plugin"
   ],
   "dependencies": {
+    "crypto-js": "^3.1.9-1",
     "uuid": "^3.3.2"
   },
   "devDependencies": {

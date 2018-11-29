@@ -24,26 +24,18 @@
 Description here.
 -->
 
-## 依赖说明
+## 依赖
 
-### 依赖的 egg 版本
+> crypto-js@3.1.9-1
+> uuid@3.3.2
 
-egg-full-utils 版本 | egg 1.x
---- | ---
-1.x | 😁
-0.x | ❌
+## 安装
 
-### 依赖的插件
-<!--
+```bash
+$ npm i egg-full-utils --save
+```
 
-如果有依赖其它插件，请在这里特别说明。如
-
-- security
-- multipart
-
--->
-
-## 开启插件
+## 使用
 
 ```js
 // config/plugin.js
@@ -53,23 +45,64 @@ exports.fullUtils = {
 };
 ```
 
-## 使用场景
+## 配置
 
-- Why and What: 描述为什么会有这个插件，它主要在完成一件什么事情。
-尽可能描述详细。
-- How: 描述这个插件是怎样使用的，具体的示例代码，甚至提供一个完整的示例，并给出链接。
+```js
+// {app_root}/config/config.default.js
+exports.fullJwt = {
+  /**
+   * 后台响应返回格式被固定为: {code, data}
+   * 当返回 ctx.success(data) 时，code 为此配置中的 success
+   * 一般设置为 0, success 等
+   */
+  success: 'success',
+};
+```
 
-## 详细配置
+## 示例
 
-请到 [config/config.default.js](config/config.default.js) 查看详细配置项说明。
+```js
+'use strict';
 
-## 单元测试
+module.exports = app => {
+  class UserController extends app.Controller {
+    /**
+     * get: /login?name=xxx&password=123456
+     * response: { code: success, data: { userId }}, status: 200
+     */
+    async login() {
+      const result = this.service.user.verify();
+      ctx.resp(result);
+    }
+  }
+  return UserController;
+};
 
-<!-- 描述如何在单元测试中使用此插件，例如 schedule 如何触发。无则省略。-->
+module.exports = app => {
+  class UserService extends app.Service {
+    async verify() {
+      const { ctx } = this;
 
-## 提问交流
+      const payload = ctx.request.body || {};
 
-请到 [egg issues](https://github.com/eggjs/egg/issues) 异步交流。
+      // get user from db or cache by payload.name
+      const user = {
+        userId: '10001',
+        password: '07e38ba001d5df0dd4488cdf0d5ab8ea',
+        salt: 'P7yRKQymchIZ5ZpP',
+      };
+
+      // check password
+      if (user.password !== ctx.helper.md5(payload.password + salt)) {
+        return ctx.failed('password error');
+      }
+
+      return ctx.success({ userId: user.userId });
+    }
+  }
+  return UserService;
+};
+```
 
 ## License
 
