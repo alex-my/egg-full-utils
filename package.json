@@ -10,7 +10,9 @@
     "eggPlugin",
     "egg-plugin"
   ],
-  "dependencies": {},
+  "dependencies": {
+    "uuid": "^3.3.2"
+  },
   "devDependencies": {
     "autod": "^3.0.0",
     "autod-egg": "^1.0.0",
@@ -35,6 +37,7 @@
     "autod": "autod"
   },
   "files": [
+    "app",
     "config"
   ],
   "ci": {

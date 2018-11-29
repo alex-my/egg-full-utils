@@ -2,7 +2,7 @@
 
 module.exports = {
   // controller
-  response({
+  resp({
     code, // error code
     data,
   }) {
