@@ -1,6 +1,6 @@
 {
   "name": "egg-full-utils",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "some useful function, extend",
   "eggPlugin": {
     "name": "fullUtils"
@@ -8,7 +8,8 @@
   "keywords": [
     "egg",
     "eggPlugin",
-    "egg-plugin"
+    "egg-plugin",
+    "egg-utils"
   ],
   "dependencies": {
     "crypto-js": "^3.1.9-1",
