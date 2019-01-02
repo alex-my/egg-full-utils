@@ -49,7 +49,7 @@ exports.fullUtils = {
 
 ```js
 // {app_root}/config/config.default.js
-exports.fullJwt = {
+exports.fullUtils = {
   /**
    * 后台响应返回格式被固定为: {code, data}
    * 当返回 ctx.success(data) 时，code 为此配置中的 success

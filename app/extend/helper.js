@@ -27,7 +27,7 @@ module.exports = {
    * @return {int}:
    */
   getRandomNum(minNum, maxNum) {
-    [ minNum, maxNum ] = [ maxNum, minNum ];
+    [minNum, maxNum] = [maxNum, minNum];
     return parseInt(Math.random() * (maxNum - minNum + 1) + minNum, 10);
   },
 
@@ -114,8 +114,16 @@ module.exports = {
     return crypto.SHA1(word).toString(crypto.enc.Hex);
   },
 
+  sha224(word) {
+    return crypto.SHA224(word).toString(crypto.enc.Hex);
+  },
+
   sha256(word) {
     return crypto.SHA256(word).toString(crypto.enc.Hex);
+  },
+
+  sha384(word) {
+    return crypto.SHA384(word).toString(crypto.enc.Hex);
   },
 
   sha512(word) {
@@ -174,99 +182,20 @@ module.exports = {
     return decodeURIComponent(word);
   },
 
-  /**
-   * AES 加密(base64 版本)
-   * 加密模式: CBC
-   * 填充: pkcs7padding
-   * 数据块: 128位
-   * 输出: base64
-   * @param {string | object} word: 待加密对象
-   * @param {string} key: 16字长字符串(字母),utf8编码,共128位
-   * @param {string} iv：16字长字符串(字母),utf8编码,共128位
-   * @return {string} :
-   */
-  aesEncrypt(word, key, iv) {
-    if (key === undefined || iv === undefined) {
-      return null;
-    }
-    if (key.length !== 16 || iv.length !== 16) {
-      return null;
-    }
-
-    const parseKey = crypto.enc.Utf8.parse(key);
-    const parseIV = crypto.enc.Utf8.parse(iv);
-
-    let parseWord = null;
-    const _type = typeof word;
-    if (_type === 'string' || _type === 'number') {
-      parseWord = crypto.enc.Utf8.parse(word);
-    } else {
-      parseWord = crypto.enc.Utf8.parse(JSON.stringify(word));
-    }
-
-    const encrypted = crypto.AES.encrypt(parseWord, parseKey, {
-      iv: parseIV,
-      mode: crypto.mode.CBC,
-      padding: crypto.pad.Pkcs7,
-    });
-    // Base64版本
-    return encrypted.toString();
-    // 十六进制版本
-    // return encrypted.ciphertext.toString();
-  },
-
-  /**
-   * AES 解密 （base64 版本）
-   * 加密模式: CBC
-   * 填充: pkcs7padding
-   * 数据块: 128位
-   * 输出: string
-   * @param {string} word: 待解密字符串（ base64 后的数据）
-   * @param {string} key: 16字长字符串(字母),utf8编码,共128位
-   * @param {string} iv：16字长字符串(字母),utf8编码,共128位
-   * @return {string} :
-   */
-  aesDecrypt(word, key, iv) {
-    if (key === undefined || iv === undefined) {
-      return null;
-    }
-    if (key.length !== 16 || iv.length !== 16) {
-      return null;
-    }
-
-    const parseKey = crypto.enc.Utf8.parse(key);
-    const parseIV = crypto.enc.Utf8.parse(iv);
-    // const parseHexWord = crypto.enc.Hex.parse(word);
-    // const parseWord = crypto.enc.Base64.stringify(parseHexWord);
-    const parseWord = word;
-    const decrypt = crypto.AES.decrypt(parseWord, parseKey, {
-      iv: parseIV,
-      mode: crypto.mode.CBC,
-      padding: crypto.pad.Pkcs7,
-    });
-    return decrypt.toString(crypto.enc.Utf8);
-  },
 
 
   /**
-   * AES 加密(十六进制 版本)
-   * 加密模式: CBC
+   * AES 加密
    * 填充: pkcs7padding
    * 数据块: 128位
-   * 输出: 十六进制 hex
-   * @param {string | object} word: 待加密对象
-   * @param {string} key: 16字长字符串(字母),utf8编码,共128位
-   * @param {string} iv：16字长字符串(字母),utf8编码,共128位
-   * @return {string} :
+   * @param {string} word : 要加密的内容
+   * @param {string} key : 密钥
+   * @param {string} iv : 密钥偏移量
+   * @param {CBC | ECB | CTR | CFB | OFB} mode : 默认 CBC
+   * @param {boolean} isBase64 : 返回值是否是 base64，默认 true
+   * @return {string} 加密的内容
    */
-  aesEncryptHex(word, key, iv) {
-    if (key === undefined || iv === undefined) {
-      return null;
-    }
-    if (key.length !== 16 || iv.length !== 16) {
-      return null;
-    }
-
+  aesEncrypt(word, key, iv, mode = 'CBC', isBase64 = true) {
     const parseKey = crypto.enc.Utf8.parse(key);
     const parseIV = crypto.enc.Utf8.parse(iv);
 
@@ -274,47 +203,189 @@ module.exports = {
     const _type = typeof word;
     if (_type === 'string' || _type === 'number') {
       parseWord = crypto.enc.Utf8.parse(word);
-    } else {
+    } else if (_type === 'object') {
       parseWord = crypto.enc.Utf8.parse(JSON.stringify(word));
+    } else {
+      return null;
+    }
+
+    let realMode = '';
+    if (mode === 'CBC') {
+      realMode = crypto.mode.CBC;
+    } else if (mode === 'ECB') {
+      realMode = crypto.mode.ECB;
+    } else if (mode === 'CTR') {
+      realMode = crypto.mode.CTR;
+    } else if (mode === 'CFB') {
+      realMode = crypto.mode.CFB;
+    } else if (mode === 'OFB') {
+      realMode = crypto.mode.OFB;
+    } else {
+      return null;
     }
 
     const encrypted = crypto.AES.encrypt(parseWord, parseKey, {
       iv: parseIV,
-      mode: crypto.mode.CBC,
+      mode: realMode,
       padding: crypto.pad.Pkcs7,
     });
-    // 十六进制版本
-    return encrypted.ciphertext.toString();
+
+    return isBase64 ? encrypted.toString() : encrypted.ciphertext.toString();
   },
 
   /**
-   * AES 解密 （十六进制 版本）
-   * 加密模式: CBC
-   * 填充: pkcs7padding
-   * 数据块: 128位
-   * 输出: string
-   * @param {string} word: 待解密字符串（ base64 后的数据）
-   * @param {string} key: 16字长字符串(字母),utf8编码,共128位
-   * @param {string} iv：16字长字符串(字母),utf8编码,共128位
-   * @return {string} :
+   * AES 解密
+   * @param {string} word : 要加密的内容
+   * @param {string} key : 密钥
+   * @param {string} iv : 密钥偏移量
+   * @param {CBC | ECB | CTR | CFB | OFB} mode : 默认 CBC
+   * @param {boolean} isBase64 : 返回值是否是 base64，默认 true
+   * @return {string} 加密的内容
    */
-  aesDecryptHex(word, key, iv) {
-    if (key === undefined || iv === undefined) {
-      return null;
+  aesDecrypt(word, key, iv, mode = 'CBC', isBase64 = true) {
+    const parseKey = crypto.enc.Utf8.parse(key);
+    const parseIV = crypto.enc.Utf8.parse(iv);
+
+    let parseWord = '';
+    if (isBase64) {
+      parseWord = word;
+    } else {
+      const parseHexWord = crypto.enc.Hex.parse(word);
+      parseWord = crypto.enc.Base64.stringify(parseHexWord);
     }
-    if (key.length !== 16 || iv.length !== 16) {
+
+    let realMode = '';
+    if (mode === 'CBC') {
+      realMode = crypto.mode.CBC;
+    } else if (mode === 'ECB') {
+      realMode = crypto.mode.ECB;
+    } else if (mode === 'CTR') {
+      realMode = crypto.mode.CTR;
+    } else if (mode === 'CFB') {
+      realMode = crypto.mode.CFB;
+    } else if (mode === 'OFB') {
+      realMode = crypto.mode.OFB;
+    } else {
       return null;
     }
 
-    const parseKey = crypto.enc.Utf8.parse(key);
-    const parseIV = crypto.enc.Utf8.parse(iv);
-    const parseHexWord = crypto.enc.Hex.parse(word);
-    const parseWord = crypto.enc.Base64.stringify(parseHexWord);
     const decrypt = crypto.AES.decrypt(parseWord, parseKey, {
       iv: parseIV,
-      mode: crypto.mode.CBC,
+      mode: realMode,
       padding: crypto.pad.Pkcs7,
     });
-    return decrypt.toString(crypto.enc.Utf8);
+    const str = decrypt.toString(crypto.enc.Utf8);
+    return str;
   },
+
+  /**
+   * tripledes 加密
+   * @param {string} word : 将要加密的内容
+   * @param {string} key : 密钥
+   * @return {string} 加密后的内容
+   */
+  tripleDesEncode(word, key) {
+    return tripledes.encrypt(word, key).toString()
+  },
+
+  /**
+   * tripledes 解密
+   * @param {string} word : 已加密的内容
+   * @param {string} key : 密钥
+   * @return {string} 解密后的内容
+   */
+  tripleDesDecode(word, key) {
+    return tripledes.decrypt(word, key).toString(crypto.enc.Utf8);
+  },
+
+  /**
+   * desEncrypt
+   * @param {string} word : 要加密的内容
+   * @param {string} key : 密钥
+   * @param {string} iv : 密钥偏移量
+   * @param {CBC | ECB | CTR | CFB | OFB} mode : 默认 CBC
+   * @param {boolean} isBase64 : 返回值是否是 base64，默认 true
+   * @return {string} 加密的内容
+   */
+  desEncrypt(word, key, iv, mode = 'CBC', isBase64 = true) {
+    const parseKey = crypto.enc.Utf8.parse(key);
+    const parseIV = crypto.enc.Utf8.parse(iv);
+
+    let parseWord = '';
+    const _type = typeof word;
+    if (_type === 'string' || _type === 'number') {
+      parseWord = crypto.enc.Utf8.parse(word);
+    } else if (_type === 'object') {
+      parseWord = crypto.enc.Utf8.parse(JSON.stringify(word));
+    } else {
+      return null;
+    }
+
+    let realMode = '';
+    if (mode === 'CBC') {
+      realMode = crypto.mode.CBC;
+    } else if (mode === 'ECB') {
+      realMode = crypto.mode.ECB;
+    } else if (mode === 'CTR') {
+      realMode = crypto.mode.CTR;
+    } else if (mode === 'CFB') {
+      realMode = crypto.mode.CFB;
+    } else if (mode === 'OFB') {
+      realMode = crypto.mode.OFB;
+    } else {
+      return null;
+    }
+
+    const encrypted = crypto.DES.encrypt(parseWord, parseKey, {
+      iv: parseIV,
+      mode: realMode,
+      padding: crypto.pad.Pkcs7,
+    });
+    return isBase64 ? encrypted.toString() : encrypted.ciphertext.toString();
+  },
+
+  /**
+   * des 解密
+   * @param {string} word : 要加密的内容
+   * @param {string} key : 密钥
+   * @param {string} iv : 密钥偏移量
+   * @param {CBC | ECB | CTR | CFB | OFB} mode : 默认 CBC
+   * @param {boolean} isBase64 : 返回值是否是 base64，默认 true
+   * @return {string} 加密的内容
+   */
+  desDecrypt(word, key, iv, mode = 'CBC', isBase64 = true) {
+    const parseKey = crypto.enc.Utf8.parse(key);
+    const parseIV = crypto.enc.Utf8.parse(iv);
+
+    let parseWord = '';
+    if (isBase64) {
+      parseWord = word;
+    } else {
+      const parseHexWord = crypto.enc.Hex.parse(word);
+      parseWord = crypto.enc.Base64.stringify(parseHexWord);
+    }
+
+    let realMode = '';
+    if (mode === 'CBC') {
+      realMode = crypto.mode.CBC;
+    } else if (mode === 'ECB') {
+      realMode = crypto.mode.ECB;
+    } else if (mode === 'CTR') {
+      realMode = crypto.mode.CTR;
+    } else if (mode === 'CFB') {
+      realMode = crypto.mode.CFB;
+    } else if (mode === 'OFB') {
+      realMode = crypto.mode.OFB;
+    } else {
+      return null;
+    }
+
+    const decrypt = crypto.DES.decrypt(parseWord, parseKey, {
+      iv: parseIV,
+      mode: realMode,
+      padding: crypto.pad.Pkcs7,
+    });
+    const str = decrypt.toString(crypto.enc.Utf8);
+    return str;
+  }
 };
