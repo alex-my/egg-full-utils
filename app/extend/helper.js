@@ -106,6 +106,12 @@ module.exports = {
     return parseInt(new Date().setHours(24, 0, 0) / 1000, 10);
   },
 
+  // eg: 20191231
+  day() {
+    const d = new Date();
+    return `${d.getFullYear()}${d.getMonth()+1}${d.getDate()}`
+  },
+
   md5(word) {
     return crypto.MD5(word).toString();
   },
