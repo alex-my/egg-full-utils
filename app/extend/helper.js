@@ -46,6 +46,7 @@ module.exports = {
     return arr[Math.floor(Math.random() * arr.length)];
   },
 
+  // by timestamp
   uuid1() {
     return uuid.v1();
   },
