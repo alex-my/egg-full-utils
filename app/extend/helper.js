@@ -63,6 +63,13 @@ module.exports = {
   },
 
   /**
+   * millisecond
+   */
+  ms() {
+    return parseInt(new Date() / 1000, 10);
+  },
+
+  /**
    * get timestamp
    * now: 2018/9/14 16:30:6
    * time(1, 1, 1, 1) => 1537003806 (2018/9/15 17:30:6)
