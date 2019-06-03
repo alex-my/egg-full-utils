@@ -3,8 +3,8 @@
 module.exports = {
   // controller
   resp({
-    code, // error code
-    data,
+    code = this.app.config.fullUtils.success, // error code
+    data = null,
   }) {
     this.body = {
       code,
