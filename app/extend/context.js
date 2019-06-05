@@ -22,7 +22,7 @@ module.exports = {
   },
 
   // service
-  failed(code, data = null) {
+  failed(code = this.app.config.fullUtils.failed, data = null) {
     return {
       code, // error code
       data,
