@@ -1,10 +1,10 @@
 'use strict';
 
 const crypto = require('crypto-js');
+const tripledes = require('crypto-js/tripledes');
 const uuid = require('uuid');
 
 module.exports = {
-
   /**
    * Get a random string, remove the confusing characters by default
    * @param {int} length : Random string length
@@ -27,7 +27,7 @@ module.exports = {
    * @return {int}:
    */
   getRandomNum(minNum, maxNum) {
-    [minNum, maxNum] = [maxNum, minNum];
+    [ minNum, maxNum ] = [ maxNum, minNum ];
     return parseInt(Math.random() * (maxNum - minNum + 1) + minNum, 10);
   },
 
@@ -74,11 +74,12 @@ module.exports = {
    * get timestamp
    * now: 2018/9/14 16:30:6
    * time(1, 1, 1, 1) => 1537003806 (2018/9/15 17:30:6)
-   * @param {int} day:
-   * @param {int} hour:
-   * @param {int} min:
-   * @param {int} sec:
-   * @return {int} :
+   *
+   * @param {int} day
+   * @param {int} hour
+   * @param {int} min
+   * @param {int} sec
+   * @return {int}
    */
   time(day, hour, min, sec) {
     const cur = new Date();
@@ -117,7 +118,7 @@ module.exports = {
   // eg: 20191231
   day() {
     const d = new Date();
-    return `${d.getFullYear()}${d.getMonth()+1}${d.getDate()}`
+    return `${d.getFullYear()}${d.getMonth() + 1}${d.getDate()}`;
   },
 
   md5(word) {
@@ -180,8 +181,8 @@ module.exports = {
   /**
    * encodeURIComponent编码方式,会对特殊符号编码
    * https://google.com => https%3A%2F%2Fgoogle.com
-   * @param {string} word:
-   * @return {string} :
+   * @param {string} word
+   * @return {string}
    */
   urlEncodeComponent(word) {
     return encodeURIComponent(word);
@@ -189,14 +190,12 @@ module.exports = {
 
   /**
    * https%3A%2F%2Fgoogle.com => https://google.com
-   * @param {string} word:
-   * @return {string} :
+   * @param {string} word
+   * @return {string}
    */
   urlDecodeComponent(word) {
     return decodeURIComponent(word);
   },
-
-
 
   /**
    * AES 加密
@@ -299,7 +298,7 @@ module.exports = {
    * @return {string} 加密后的内容
    */
   tripleDesEncode(word, key) {
-    return tripledes.encrypt(word, key).toString()
+    return tripledes.encrypt(word, key).toString();
   },
 
   /**
@@ -401,5 +400,5 @@ module.exports = {
     });
     const str = decrypt.toString(crypto.enc.Utf8);
     return str;
-  }
+  },
 };
